@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse Financière Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar h1 {
+            color: white;
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .hero-section h2 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .hero-section p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .upload-card {
+            background: var(--card-background);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .upload-zone {
+            border: 3px dashed var(--accent-color);
+            border-radius: 1rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--success-color);
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            transform: translateY(-2px);
+        }
+
+        .upload-zone i {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .upload-zone h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .upload-zone p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-container {
+            display: none;
+            margin-top: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), #34d399);
+            border-radius: 6px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-success {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .analysis-grid {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .analysis-grid.show {
+            display: grid;
+        }
+
+        .card {
+            background: var(--card-background);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease;
+            min-height: 500px;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--background-color);
+            border-radius: 0.5rem;
+            padding: 0.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+
+        .tab.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .ratios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .ratio-card {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease;
+        }
+
+        .ratio-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .ratio-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .ratio-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-top: 1rem;
+        }
+
+        .year-selector {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .year-btn {
+            padding: 0.5rem 1rem;
+            background: var(--background-color);
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+        }
+
+        .year-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .downloads-section {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .downloads-section.show {
+            display: block;
+        }
+
+        .downloads-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .download-card {
+            background: var(--card-background);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease;
+        }
+
+        .download-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .download-card i {
+            font-size: 2.5rem;
+            color: var(--success-color);
+            margin-bottom: 1rem;
+        }
+
+        .download-card h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .download-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .trends-section {
+            grid-column: 1 / -1;
+            margin-top: 2rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .hero-section h2 {
+                font-size: 1.875rem;
+            }
+
+            .upload-card {
+                padding: 1.5rem;
+            }
+
+            .analysis-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .card {
+                padding: 1rem;
+                min-height: auto;
+            }
+
+            .ratios-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .year-selector {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .trends-section .chart-container {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .analysis-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1><i class="fas fa-chart-line"></i> Analyse Financière Pro</h1>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero-section">
+            <h2>Analysez vos données financières en quelques clics</h2>
+            <p>Téléversez votre fichier GL.xlsx et obtenez instantanément des états financiers détaillés, des ratios clés et des visualisations graphiques professionnelles.</p>
+        </div>
+
+        <div class="upload-card">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="upload-zone" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Glissez-déposez votre fichier GL.xlsx ici</h3>
+                    <p>ou cliquez pour sélectionner un fichier (max 16MB)</p>
+                    <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls" name="file">
+                    <button type="button" class="btn btn-primary" id="selectBtn">
+                        <i class="fas fa-folder-open"></i>
+                        Sélectionner un fichier
+                    </button>
+                    <button type="submit" class="btn btn-success" id="uploadBtn" style="display: none;">
+                        <i class="fas fa-rocket"></i>
+                        Lancer l'analyse
+                    </button>
+                </div>
+
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0%</div>
+                    <div id="statusText" style="text-align: center; margin-top: 1rem; font-weight: 600; color: var(--text-secondary);">
+                        Préparation de l'analyse...
+                    </div>
+                </div>
+            </form>
+
+            <div id="statusMessages"></div>
+        </div>
+
+        <div class="analysis-grid" id="analysisSection">
+            <div class="card">
+                <h3><i class="fas fa-calculator"></i> Ratios Financiers</h3>
+                <div class="year-selector" id="yearSelector"></div>
+                <div class="tabs">
+                    <button class="tab active" onclick="showRatioTab('liquidity')">Liquidité</button>
+                    <button class="tab" onclick="showRatioTab('profitability')">Rentabilité</button>
+                    <button class="tab" onclick="showRatioTab('leverage')">Solvabilité</button>
+                    <button class="tab" onclick="showRatioTab('efficiency')">Efficacité</button>
+                </div>
+
+                <div id="liquidityRatios" class="tab-content active">
+                    <div class="ratios-grid" id="liquidityGrid"></div>
+                </div>
+                <div id="profitabilityRatios" class="tab-content">
+                    <div class="ratios-grid" id="profitabilityGrid"></div>
+                </div>
+                <div id="leverageRatios" class="tab-content">
+                    <div class="ratios-grid" id="leverageGrid"></div>
+                </div>
+                <div id="efficiencyRatios" class="tab-content">
+                    <div class="ratios-grid" id="efficiencyGrid"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-chart-pie"></i> Graphiques Financiers</h3>
+                <div class="year-selector" id="chartYearSelector"></div>
+                <div class="tabs">
+                    <button class="tab active" onclick="showChartTab('assets')">Actifs</button>
+                    <button class="tab" onclick="showChartTab('liabilities')">Passifs</button>
+                    <button class="tab" onclick="showChartTab('revenue')">Produits</button>
+                    <button class="tab" onclick="showChartTab('expenses')">Charges</button>
+                </div>
+
+                <div id="assetsChart" class="tab-content active">
+                    <div class="chart-container">
+                        <canvas id="assetsCanvas"></canvas>
+                    </div>
+                </div>
+                <div id="liabilitiesChart" class="tab-content">
+                    <div class="chart-container">
+                        <canvas id="liabilitiesCanvas"></canvas>
+                    </div>
+                </div>
+                <div id="revenueChart" class="tab-content">
+                    <div class="chart-container">
+                        <canvas id="revenueCanvas"></canvas>
+                    </div>
+                </div>
+                <div id="expensesChart" class="tab-content">
+                    <div class="chart-container">
+                        <canvas id="expensesCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card trends-section">
+                <h3><i class="fas fa-chart-line"></i> Évolution des Ratios</h3>
+                <div class="chart-container" style="height: 400px;">
+                    <canvas id="trendsCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="downloads-section" id="downloadsSection">
+            <div class="card">
+                <h3 style="text-align: center; margin-bottom: 2rem;"><i class="fas fa-download"></i> Téléchargements</h3>
+                <div class="downloads-grid">
+                    <div class="download-card">
+                        <i class="fas fa-list-alt"></i>
+                        <h4>Plan Comptable</h4>
+                        <p>Liste complète des comptes avec leur nature</p>
+                        <a href="/download/Plan_Comptable.xlsx" class="btn btn-success">
+                            <i class="fas fa-download"></i>
+                            Télécharger
+                        </a>
+                    </div>
+                    <div class="download-card">
+                        <i class="fas fa-broom"></i>
+                        <h4>Comptes Nettoyés</h4>
+                        <p>Données comptables traitées et nettoyées</p>
+                        <a href="/download/Comptes_Cleans.xlsx" class="btn btn-success">
+                            <i class="fas fa-download"></i>
+                            Télécharger
+                        </a>
+                    </div>
+                    <div class="download-card">
+                        <i class="fas fa-balance-scale"></i>
+                        <h4>États Financiers</h4>
+                        <p>Bilan et compte de résultat détaillés</p>
+                        <a href="/download/Financial_Statements.xlsx" class="btn btn-success">
+                            <i class="fas fa-download"></i>
+                            Télécharger
+                        </a>
+                    </div>
+                    <div class="download-card">
+                        <i class="fas fa-chart-bar"></i>
+                        <h4>Résumé Exécutif</h4>
+                        <p>Synthèse des analyses et ratios clés</p>
+                        <a href="/download/Summary.xlsx" class="btn btn-success">
+                            <i class="fas fa-download"></i>
+                            Télécharger
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadFormSubmitted = false;
+        let currentYear = '';
+        let ratiosData = {};
+        let chartsData = {};
+        let charts = {};
+
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const selectBtn = document.getElementById('selectBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadForm = document.getElementById('uploadForm');
+        const progressContainer = document.getElementById('progressContainer');
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            uploadArea.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            uploadArea.classList.remove('dragover');
+        }
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        }
+
+        function handleSelectClick(e) {
+            e.stopPropagation(); // Empêcher la propagation vers uploadArea
+            fileInput.click();
+        }
+
+        function handleUploadAreaClick(e) {
+            // Ne déclencher que si on clique directement sur la zone, pas sur le bouton
+            if (e.target === uploadArea || e.target.closest('.upload-zone') === uploadArea) {
+                if (!fileInput.files[0]) { // Seulement si aucun fichier n'est sélectionné
+                    fileInput.click();
+                }
+            }
+        }
+
+        selectBtn.addEventListener('click', handleSelectClick);
+        uploadArea.addEventListener('click', handleUploadAreaClick);
+
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (file) {
+                const fileName = file.name.length > 30 ? file.name.substring(0, 30) + '...' : file.name;
+                uploadArea.querySelector('h3').textContent = `Fichier sélectionné: ${fileName}`;
+                uploadArea.querySelector('p').textContent = `Taille: ${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+                selectBtn.style.display = 'none';
+                uploadBtn.style.display = 'inline-flex';
+                
+                // Désactiver le clic sur la zone upload une fois le fichier sélectionné
+                uploadArea.removeEventListener('click', handleUploadAreaClick);
+                uploadArea.style.cursor = 'default';
+                uploadArea.style.pointerEvents = 'none'; // Désactiver complètement les événements de clic
+                uploadBtn.style.pointerEvents = 'auto'; // Réactiver pour le bouton upload
+            }
+        }
+
+        // Form submission with progress tracking
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const file = fileInput.files[0];
+            if (!file) {
+                showMessage('Veuillez sélectionner un fichier', 'error');
+                return;
+            }
+
+            if (file.size > 16 * 1024 * 1024) {
+                showMessage('Le fichier est trop volumineux (max 16MB)', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            showProgress();
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<div class="loading"></div> Traitement...';
+
+            try {
+                updateProgress(10, 'Téléversement du fichier...');
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                const response = await fetch('/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                updateProgress(30, 'Nettoyage des données comptables...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                updateProgress(60, 'Génération des états financiers...');
+                await new Promise(resolve => setTimeout(resolve, 1200));
+
+                updateProgress(80, 'Calcul des ratios financiers...');
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                updateProgress(95, 'Finalisation des analyses...');
+                await new Promise(resolve => setTimeout(resolve, 600));
+
+                if (response.ok) {
+                    updateProgress(100, 'Analyse terminée avec succès !');
+                    showMessage('✅ Analyse complétée avec succès ! Vos états financiers sont prêts.', 'success');
+
+                    await loadFinancialData();
+
+                    setTimeout(() => {
+                        hideProgress();
+                        document.getElementById('analysisSection').classList.add('show');
+                        document.getElementById('downloadsSection').classList.add('show');
+                        uploadBtn.innerHTML = '<i class="fas fa-check"></i> Terminé';
+                        uploadBtn.disabled = false;
+                    }, 1500);
+                } else {
+                    const errorText = await response.text();
+                    throw new Error('Erreur du serveur: ' + response.status);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('❌ Erreur lors du traitement: ' + error.message, 'error');
+                hideProgress();
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '<i class="fas fa-rocket"></i> Relancer l\'analyse';
+            }
+        });
+
+        function showProgress() {
+            progressContainer.style.display = 'block';
+        }
+
+        function hideProgress() {
+            progressContainer.style.display = 'none';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressText').textContent = '0%';
+        }
+
+        function updateProgress(percent, status) {
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressText').textContent = percent + '%';
+            document.getElementById('statusText').textContent = status;
+        }
+
+        function showMessage(message, type) {
+            const messagesDiv = document.getElementById('statusMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `alert alert-${type}`;
+
+            const icon = type === 'success' ? 'fas fa-check-circle' : 
+                        type === 'error' ? 'fas fa-exclamation-circle' : 
+                        'fas fa-info-circle';
+
+            messageDiv.innerHTML = `<i class="${icon}"></i> ${message}`;
+            messagesDiv.appendChild(messageDiv);
+
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 6000);
+        }
+
+        async function loadFinancialData() {
+            try {
+                const response = await fetch('/api/financial-data');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    console.log('Financial data loaded successfully:', data);
+                    ratiosData = data.ratios;
+                    chartsData = data.charts;
+
+                    // Get available years and setup year selector
+                    const years = Object.keys(ratiosData).sort();
+                    if (years.length > 0) {
+                        currentYear = years[years.length - 1]; // Latest year
+                        setupYearSelector(years);
+                        updateRatiosDisplay();
+                        
+                        // Wait for Chart.js to be available before creating charts
+                        const waitForChart = () => {
+                            if (typeof Chart !== 'undefined') {
+                                createCharts(chartsData);
+                                createTrendsChart();
+                            } else {
+                                setTimeout(waitForChart, 100);
+                            }
+                        };
+                        waitForChart();
+                    }
+                } else {
+                    console.error('Error loading financial data:', data.error);
+                    showMessage('❌ Erreur lors du chargement des données financières', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading financial data:', error);
+                showMessage('❌ Erreur de connexion lors du chargement des données', 'error');
+            }
+        }
+
+        function setupYearSelector(years) {
+            // Setup year selector for ratios
+            const yearSelector = document.getElementById('yearSelector');
+            yearSelector.innerHTML = '';
+
+            years.forEach(year => {
+                const btn = document.createElement('button');
+                btn.className = `year-btn ${year === currentYear ? 'active' : ''}`;
+                btn.textContent = year;
+                btn.onclick = () => {
+                    document.querySelectorAll('#yearSelector .year-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentYear = year;
+                    updateRatiosDisplay();
+                    updateCharts();
+                    updateChartYearSelector();
+                };
+                yearSelector.appendChild(btn);
+            });
+
+            // Setup year selector for charts
+            const chartYearSelector = document.getElementById('chartYearSelector');
+            chartYearSelector.innerHTML = '';
+
+            years.forEach(year => {
+                const btn = document.createElement('button');
+                btn.className = `year-btn ${year === currentYear ? 'active' : ''}`;
+                btn.textContent = year;
+                btn.onclick = () => {
+                    document.querySelectorAll('#chartYearSelector .year-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentYear = year;
+                    updateRatiosDisplay();
+                    updateCharts();
+                    updateRatioYearSelector();
+                };
+                chartYearSelector.appendChild(btn);
+            });
+        }
+
+        function updateRatioYearSelector() {
+            document.querySelectorAll('#yearSelector .year-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === currentYear);
+            });
+        }
+
+        function updateChartYearSelector() {
+            document.querySelectorAll('#chartYearSelector .year-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent === currentYear);
+            });
+        }
+
+        function updateRatiosDisplay() {
+            if (!ratiosData[currentYear]) return;
+
+            const ratios = ratiosData[currentYear];
+
+            document.getElementById('liquidityGrid').innerHTML = `
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.current_ratio?.toFixed(2) || '0.00'}</div>
+                    <div class="ratio-label">Ratio de liquidité générale</div>
+                </div>
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.quick_ratio?.toFixed(2) || '0.00'}</div>
+                    <div class="ratio-label">Ratio de liquidité réduite</div>
+                </div>
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.cash_ratio?.toFixed(2) || '0.00'}</div>
+                    <div class="ratio-label">Ratio de liquidité immédiate</div>
+                </div>
+                <div class="ratio-card">
+                    <div class="ratio-value">${new Intl.NumberFormat('fr-CH', { style: 'currency', currency: 'CHF' }).format(ratios.working_capital || 0)}</div>
+                    <div class="ratio-label">Fonds de roulement</div>
+                </div>
+            `;
+
+            document.getElementById('profitabilityGrid').innerHTML = `
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.net_margin?.toFixed(1) || '0.0'}%</div>
+                    <div class="ratio-label">Marge nette</div>
+                </div>
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.roa?.toFixed(1) || '0.0'}%</div>
+                    <div class="ratio-label">Rentabilité des actifs</div>
+                </div>
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.roe?.toFixed(1) || '0.0'}%</div>
+                    <div class="ratio-label">Rentabilité des capitaux propres</div>
+                </div>
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.ebitda_margin?.toFixed(1) || '0.0'}%</div>
+                    <div class="ratio-label">Marge EBITDA</div>
+                </div>
+            `;
+
+            document.getElementById('leverageGrid').innerHTML = `
+                <div class="ratio-card">
+                    <div class="ratio-value">${(ratios.equity_ratio * 100)?.toFixed(1) || '0.0'}%</div>
+                    <div class="ratio-label">Ratio de fonds propres</div>
+                </div>
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.debt_to_equity?.toFixed(2) || '0.00'}</div>
+                    <div class="ratio-label">Ratio d'endettement</div>
+                </div>
+                <div class="ratio-card">
+                    <div class="ratio-value">${(ratios.debt_to_assets * 100)?.toFixed(1) || '0.0'}%</div>
+                    <div class="ratio-label">Ratio dettes/actifs</div>
+                </div>
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.interest_coverage?.toFixed(2) || '0.00'}</div>
+                    <div class="ratio-label">Couverture des intérêts</div>
+                </div>
+            `;
+
+            document.getElementById('efficiencyGrid').innerHTML = `
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.asset_turnover?.toFixed(2) || '0.00'}</div>
+                    <div class="ratio-label">Rotation des actifs</div>
+                </div>
+                <div class="ratio-card">
+                    <div class="ratio-value">${ratios.fixed_asset_turnover?.toFixed(2) || '0.00'}</div>
+                    <div class="ratio-label">Rotation des immobilisations</div>
+                </div>
+            `;
+        }
+
+        function createCharts(chartData) {
+            console.log('Creating charts with data:', chartData);
+
+            if (!currentYear || !chartData) {
+                console.log('No current year or chart data available');
+                return;
+            }
+
+            // Check if Chart.js is loaded
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js is not loaded');
+                setTimeout(() => createCharts(chartData), 1000);
+                return;
+            }
+
+            console.log('Using data for year:', currentYear);
+
+            // Destroy existing charts
+            Object.keys(charts).forEach(key => {
+                if (charts[key]) {
+                    try {
+                        charts[key].destroy();
+                    } catch (e) {
+                        console.log('Error destroying chart:', e);
+                    }
+                }
+            });
+
+            // Assets breakdown chart
+            const assetsData = chartData.assets_breakdown[currentYear] || {};
+            const assetsCanvas = document.getElementById('assetsCanvas');
+            if (assetsCanvas && Object.keys(assetsData).length > 0) {
+                try {
+                    // Traduire les labels en français
+                    const translatedAssetsData = {};
+                    const translations = {
+                        'Cash & Equivalents': 'Liquidités & équivalents',
+                        'Receivables': 'Créances',
+                        'Inventory': 'Stocks',
+                        'Fixed Assets': 'Immobilisations',
+                        'Other Assets': 'Autres actifs'
+                    };
+                    
+                    Object.keys(assetsData).forEach(key => {
+                        const translatedKey = translations[key] || key;
+                        translatedAssetsData[translatedKey] = assetsData[key];
+                    });
+
+                    const ctx = assetsCanvas.getContext('2d');
+                    charts.assets = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(translatedAssetsData),
+                            datasets: [{
+                                data: Object.values(translatedAssetsData),
+                                backgroundColor: ['#3498db', '#e74c3c', '#f39c12', '#2ecc71', '#9b59b6']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom' },
+                                title: { display: true, text: `Répartition des Actifs ${currentYear}` },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const value = new Intl.NumberFormat('fr-CH', {
+                                                style: 'currency',
+                                                currency: 'CHF'
+                                            }).format(context.raw);
+                                            return `${context.label}: ${value}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error creating assets chart:', error);
+                }
+            }
+
+            // Liabilities breakdown chart
+            const liabilitiesData = chartData.liabilities_breakdown[currentYear] || {};
+            const liabilitiesCanvas = document.getElementById('liabilitiesCanvas');
+            if (liabilitiesCanvas && Object.keys(liabilitiesData).length > 0) {
+                try {
+                    // Traduire les labels en français
+                    const translatedLiabilitiesData = {};
+                    const translations = {
+                        'Current Liabilities': 'Dettes à court terme',
+                        'Long-term Debt': 'Dettes à long terme',
+                        'Equity': 'Capitaux propres'
+                    };
+                    
+                    Object.keys(liabilitiesData).forEach(key => {
+                        const translatedKey = translations[key] || key;
+                        translatedLiabilitiesData[translatedKey] = liabilitiesData[key];
+                    });
+
+                    const ctx = liabilitiesCanvas.getContext('2d');
+                    charts.liabilities = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: Object.keys(translatedLiabilitiesData),
+                            datasets: [{
+                                data: Object.values(translatedLiabilitiesData),
+                                backgroundColor: ['#e74c3c', '#f39c12', '#2ecc71']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom' },
+                                title: { display: true, text: `Répartition du Passif ${currentYear}` },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const value = new Intl.NumberFormat('fr-CH', {
+                                                style: 'currency',
+                                                currency: 'CHF'
+                                            }).format(Math.abs(context.raw));
+                                            return `${context.label}: ${value}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error creating liabilities chart:', error);
+                }
+            }
+
+            // Revenue breakdown chart
+            const revenueData = chartData.revenue_breakdown[currentYear] || {};
+            const revenueCanvas = document.getElementById('revenueCanvas');
+            if (revenueCanvas && Object.keys(revenueData).length > 0) {
+                try {
+                    const ctx = revenueCanvas.getContext('2d');
+                    charts.revenue = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(revenueData),
+                            datasets: [{
+                                label: 'Produits (CHF)',
+                                data: Object.values(revenueData),
+                                backgroundColor: '#2ecc71',
+                                borderColor: '#27ae60',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return new Intl.NumberFormat('fr-CH', {
+                                                style: 'currency',
+                                                currency: 'CHF'
+                                            }).format(value);
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: { 
+                                    display: true, 
+                                    text: `Détail des Produits ${currentYear}`,
+                                    font: { size: 14, weight: 'bold' }
+                                },
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error creating revenue chart:', error);
+                }
+            } else {
+                console.log('No revenue data for year:', currentYear);
+            }
+
+            // Expense breakdown chart
+            const expenseData = chartData.expense_breakdown[currentYear] || {};
+            const expenseCanvas = document.getElementById('expensesCanvas');
+            if (expenseCanvas && Object.keys(expenseData).length > 0) {
+                try {
+                    // Traduire les labels en français
+                    const translatedExpenseData = {};
+                    const translations = {
+                        'Direct Costs': 'Coûts directs',
+                        'Personnel': 'Charges de personnel',
+                        'Operating Expenses': 'Charges d\'exploitation',
+                        'Other Expenses': 'Autres charges'
+                    };
+                    
+                    Object.keys(expenseData).forEach(key => {
+                        const translatedKey = translations[key] || key;
+                        translatedExpenseData[translatedKey] = expenseData[key];
+                    });
+
+                    const ctx = expenseCanvas.getContext('2d');
+                    charts.expenses = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(translatedExpenseData),
+                            datasets: [{
+                                label: 'Charges (CHF)',
+                                data: Object.values(translatedExpenseData),
+                                backgroundColor: ['#e74c3c', '#c0392b', '#922b21', '#78281f']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return new Intl.NumberFormat('fr-CH', {
+                                                style: 'currency',
+                                                currency: 'CHF'
+                                            }).format(value);
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: { 
+                                    display: true, 
+                                    text: `Détail des Charges ${currentYear}`,
+                                    font: { size: 14, weight: 'bold' }
+                                },
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const value = new Intl.NumberFormat('fr-CH', {
+                                                style: 'currency',
+                                                currency: 'CHF'
+                                            }).format(context.raw);
+                                            return `${context.label}: ${value}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error creating expense chart:', error);
+                }
+            }
+        }
+
+        function updateCharts() {
+            if (chartsData) {
+                createCharts(chartsData);
+            }
+        }
+
+        function createTrendsChart() {
+            const ctx = document.getElementById('trendsCanvas').getContext('2d');
+
+            if (charts.trends) {
+                charts.trends.destroy();
+            }
+
+            const years = Object.keys(ratiosData).sort();
+
+            charts.trends = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Ratio de liquidité générale',
+                            data: years.map(year => ratiosData[year]?.current_ratio || 0),
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#2563eb',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Marge nette (%)',
+                            data: years.map(year => ratiosData[year]?.net_margin || 0),
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Rentabilité des capitaux propres (%)',
+                            data: years.map(year => ratiosData[year]?.roe || 0),
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#f59e0b',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Ratio de fonds propres (%)',
+                            data: years.map(year => (ratiosData[year]?.equity_ratio * 100) || 0),
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#8b5cf6',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Années',
+                                font: { size: 14, weight: 'bold' },
+                                color: '#374151'
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Valeurs',
+                                font: { size: 14, weight: 'bold' },
+                                color: '#374151'
+                            },
+                            beginAtZero: true,
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Évolution des Ratios Financiers Clés',
+                            font: { size: 18, weight: 'bold' },
+                            color: '#1f2937'
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: { 
+                                padding: 20,
+                                font: { size: 13 },
+                                color: '#374151'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showRatioTab(tabName) {
+            // Remove active class from all ratio tabs
+            document.querySelectorAll('.card:first-child .tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.card:first-child .tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to selected tab
+            document.querySelector(`button[onclick="showRatioTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}Ratios`).classList.add('active');
+        }
+
+        function showChartTab(tabName) {
+            // Remove active class from all chart tabs
+            document.querySelectorAll('.card:nth-child(2) .tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.card:nth-child(2) .tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to selected tab
+            document.querySelector(`button[onclick="showChartTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}Chart`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
